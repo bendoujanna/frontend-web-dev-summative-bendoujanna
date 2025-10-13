@@ -6,14 +6,13 @@
     <title>Finance Tracker</title>
     <link rel="stylesheet" href="styles/main.css">
     <link rel="stylesheet" href="styles/transition.css">
-    <link rel="stylesheet" href="styles/mobile-first.css"
 </head>
 <body>
     <header>
         <a href="#main" class="skip-link">Skip to main content</a>
         <div class="brand">
             <a href="index.html">
-                <img src="" alt="logo">
+                <img src="assets/logo.png" alt="logo">
             </a>
             <h1>FinanceTracker</h1>
         </div>
@@ -46,8 +45,21 @@
         </section>
     
         <section id="records" class="records"> 
+            <h3>Transaction Records</h3>
+            
+            <div class="search-bar">
+                <input 
+                    type="text"
+                    id="searchInput"
+                    placeholder="Search by description or category"
+                >
+            </div>
+
+            <div class="records-list">
+
+            </div>
+
             <button class="back-home">← Back to Home</button>
-            Records content
             </section>
 
         <section id="form" class="form">
@@ -84,7 +96,7 @@
 
                     <label for="category">Category:</label>
                     <select id="category" name="category" required>
-                        <option value="">--Select category</option>
+                        <option value="">--Select category--</option>
                         <option value="food">Food</option>
                         <option value="transport">Transport</option>
                         <option value="books">Books</option>
@@ -93,15 +105,43 @@
                         <option value="other">Other</option>
                     </select>
 
-                    <input aria-label="customized category input"
+                    <input
                         type="text"
                         id="customizeCategory"
                         name="customizeCategory"
                         placeholder="Enter your category"
                         style="display: none;"
                     >
-
                 </div>
+
+            <fieldset class="form-sec">
+                <legend>Type:</legend>
+                <div>
+                    <label for="income">Income</label>
+                    <input
+                        type="radio"
+                        id="income"
+                        name="type"
+                        value="income"
+                        required
+                    >
+                </div>
+                <div>
+                    <label for="expense">Expense</label>
+                    <input 
+                        type="radio"
+                        id="expense"
+                        name="type"
+                        value="expense"
+                        required
+                    >
+                </div>
+            </fieldset>
+
+            <div class="form-act">
+                <button type="submit" class="save-button">Save</button>
+                <button type="reset" class="reset-button">Reset</button>
+            </div>
 
                 
             </form>

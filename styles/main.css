@@ -1,0 +1,219 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding:0;
+    font-family:'Times New Roman', Times, serif;
+}
+
+html, body {
+    height: auto;
+    overflow: auto;
+}
+body {
+    background-color: rgb(210, 206, 206);
+    color:rgb(0, 0, 0);
+    line-height: 1.6;
+}
+
+a {
+    text-decoration: none;
+    color:inherit;
+}
+
+
+/* Skip-link */
+
+.skip-link {
+    position:absolute;
+    width: 2px;
+    height: 2px;
+    padding: 0;
+    margin: 2px;
+    overflow: hidden;
+    white-space: nowrap;
+    border: 0;
+}
+
+.skip-link:focus,
+.skip-link:focus-visible {
+    position: static;
+    width: auto;
+    height: auto;
+    margin: 0;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+    background-color: white;
+    outline: 2px ;
+}
+
+
+/*Styling the header*/
+
+header .brand img {
+    width:45px;
+    height: 45px;
+    object-fit: cover;
+    border-radius: 60%;
+}
+
+header {
+    background-color: rgb(79, 11, 142);
+    color: rgb(171, 168, 168);
+    border-radius: 5px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7em;
+
+}
+
+header .brand {
+    display: flex;
+    align-items: center ; 
+    gap: 1.2rem;
+}
+
+header .brand img {
+    width: 45px;
+    height: 45px;
+}
+
+header .brand h1 {
+    font-size: 2rem;
+    margin: 0;
+}
+
+.home h3 {
+    text-align: center;
+    color:rgba(0, 0, 0, 0.748);
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+    
+    
+}
+
+
+/*Styling the home buttons*/
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 2rem;
+}  
+.menu-button {
+    padding: 0.8rem 1.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.177);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
+    background-color: rgb(210, 206, 206);
+    color:rgb(76, 74, 74);
+    border-radius: 8px;
+    cursor : pointer;
+    width: 200px;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+.menu-button:hover,
+.menu-button:focus {
+    background-color: rgba(255, 255, 255, 0.659);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.24);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+
+/* Mobile-first responsive design*/
+
+.menu-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem
+}
+
+.dashboard .stats {
+    flex-direction: column;
+}
+
+
+@media (min-width: 768px) {
+    .dashboard .stats {
+        flex-direction: row;
+    }
+    .menu-buttons {
+        flex-direction: row;
+    }
+}
+
+@media (min-width: 1024px) {
+    main {
+        max-width: 1200px;
+        margin: auto;
+    }
+}
+
+
+/* Styling each section */
+
+
+/* 1. Add or Edit form  */
+
+.form {
+    color: rgba(0, 0, 0, 0.8);
+    padding:1.5rem;
+    background-color: rgba(237, 233, 233, 0.918);
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
+    max-width: 500px;
+    margin:auto
+
+}
+
+label {
+    font-weight: 500;
+
+}
+
+input, select {
+    width: 100%;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0, 0, 0, 0.373);
+    font-size: 1rem;
+}
+
+.form-act {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    padding-top: 1rem;
+
+}
+
+.form-sec {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+fieldset div {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.3rem;
+}
+
+.save-button, .reset-button {
+    font: rgba(237, 233, 233, 0.919);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
+    border: 1px solid rgba(0, 0, 0, 0.177);
+    border-radius: 6px;
+    font-weight: 500;
+
+}
+

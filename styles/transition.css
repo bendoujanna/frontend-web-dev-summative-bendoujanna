@@ -1,0 +1,27 @@
+main {
+    position: relative;
+    overflow: visible;
+    min-height: 60vh;
+}
+
+main section {
+    position: absolute;
+    inset: 0;
+    overflow: auto;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+    border: 1px dashed rgba(0,0,0,0.1)
+}
+
+main section.active {
+    transform: translateX(0);
+    opacity: 1;
+    z-index: 2;
+}
+
+main section.prev {
+    transform: translateX(-100%);
+    opacity: 0;
+    z-index: 1;
+}
