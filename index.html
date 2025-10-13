@@ -2,9 +2,127 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Finance Tracker</title>
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/transition.css">
+    <link rel="stylesheet" href="styles/mobile-first.css"
 </head>
 <body>
+    <header>
+        <a href="#main" class="skip-link">Skip to main content</a>
+        <div class="brand">
+            <a href="index.html">
+                <img src="" alt="logo">
+            </a>
+            <h1>FinanceTracker</h1>
+        </div>
+        <p>Take care of your financial health!</p>
+        <nav>
+            <!-- Future navigation buttons: About, Dahboard, Records, Add/edit, Settings-->
+        </nav>
+    </header>
+    <main id="main">
+
+        <section id="home" class="home active">
+            <h3>Welcome!</h3>
+            <div class="menu-buttons">
+                <button class="menu-button" data-target="about">About</button>
+                <button class="menu-button" data-target="dashboard">Dashboard</button>
+                <button class="menu-button" data-target="records">Records</button>
+                <button class="menu-button" data-target="form">Add/Edit</button>
+                <button class="menu-button" data-target="settings">Settings</button>
+            </div>
+        </section>
+
+        <section id="about" class="about">
+            <button class="back-home">← Back to Home</button>
+            About content
+        </section>
+
+        <section id="dashboard" class="dashboard">
+            <button class="back-home">← Back to Home</button>
+            Dashboard content
+        </section>
+    
+        <section id="records" class="records"> 
+            <button class="back-home">← Back to Home</button>
+            Records content
+            </section>
+
+        <section id="form" class="form">
+            <h3>Add or Edit Transaction</h3>
+            <form id="transaction-form">
+                <div class="form-sec">
+                    <label for="description">Description:</label>
+                    <input 
+                        type="text"
+                        id="description"
+                        name="description"
+                        placeholder="e.g: lunch at cafeteria"
+                        required
+                    >
+
+                    <label for="amount">Amount:</label>
+                    <input
+                        type="number"
+                        id="amount"
+                        name="amount"
+                        placeholder="e.g: 21"
+                        min="0"
+                        step="0.01"
+                        required
+                    >
+
+                    <label for="date">Date:</label>
+                    <input
+                        type="date"
+                        id="date"
+                        name="date"
+                        required
+                    >
+
+                    <label for="category">Category:</label>
+                    <select id="category" name="category" required>
+                        <option value="">--Select category</option>
+                        <option value="food">Food</option>
+                        <option value="transport">Transport</option>
+                        <option value="books">Books</option>
+                        <option value="entertainment">Entertainment</option>
+                        <option value="health">Health</option>
+                        <option value="other">Other</option>
+                    </select>
+
+                    <input aria-label="customized category input"
+                        type="text"
+                        id="customizeCategory"
+                        name="customizeCategory"
+                        placeholder="Enter your category"
+                        style="display: none;"
+                    >
+
+                </div>
+
+                
+            </form>
+            <button class="back-home">← Back to Home</button>
+            
+
+            
+        </section>
+
+        <section id="settings" class="settings">
+            <button class="back-home">← Back to Home</button>
+            Settings content
+        </section>
+
+    </main>
+    <footer>
+        <a href="githublink">Github</a>
+        <a href="b.vitalina@alustudent.com">Email me</a>
+    </footer>
+
+    <script src="scripts/ui.js"></script>
 
 </body>
 </html>
