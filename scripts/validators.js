@@ -1,36 +1,21 @@
-// // Example search patterns:
-
-    // // Cents present: /\.\d{2}\b/
-
-    // // Beverage keyword: /(coffee|tea)/i
-
-    // // Duplicate word: /\b(\w+)\s+\1\b/
-
-// Description/title: forbid leading/trailing spaces and collapse doubles (e.g., /^\S(?:.*\S)?$/)
-
-// Numeric field (amount/duration/pages): ^(0|[1-9]\d*)(\.\d{1,2})?$
-
-// Date (YYYY-MM-DD): ^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$
-
-// Category/tag (letters, spaces, hyphens): /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/
-
-// Advanced regex (≥1): e.g., back-reference to catch duplicate words \b(\w+)\s+\1\b, or lookahead for password/rate strength.
+/*Handle regular expressions and form validation*/
 
 
-function isValideDescription(text) {
-    const descRegex = /^\S(?:.*\S)?$/;
-    const noRepetition = \b(\w+)\s+\1\b;
-    return descRegex.test(text) && noRepetition.test(text);
+//Regex 
+function isValidDescription(text) {
+    const descRegex = /^\S(?:.*\S)?$/;  
+    const noRepetition = /\b(\w+)\s+\1\b/;  
+    return descRegex.test(text) && !noRepetition.test(text);
 }
 
 function isValidAmount(value) {
-    const amountRegex = ^(0|[1-9]\d*)(\.\d{1,2})?$;
+    const amountRegex = /^(0|[1-9]\d*)(\.\d{1,2})?$/;
     return amountRegex.test(value);
 }
 
 function isValidDate(date) {
-    const dateRgex = ^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$;
-    return dateRgex.test(date);
+    const dateRegex = /^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$/;
+    return dateRegex.test(date);
 }
 
 function isValidCategory(type) {
@@ -38,13 +23,60 @@ function isValidCategory(type) {
     return categRegex.test(type);
 }
 
+//  main validation function
 function validateForm(formData) {
-    const allInput = document.querySelectorAll("form-sec");
-    return {
-        isValideDescription(text);
-        isValidAmount(value);
-        isValidDate(Date);
-        isValidCategory(type);
+    const {description, amount, date, category, customizeCategory, type} = formData;
+    
+    // check for empty required fields 
+    if (!description || !amount || !date || !category || !type) {
+        alert("Please fill in all required fields.");
+        return false;
     }
+
+    // customizeCategory must be filled if the user chose 'other'
+    if( category === "other" && !customizeCategory) {
+        alert("Please specify your custom category.");
+        return false;
+    }
+
+    // No repeated words and useless spaces
+    if (!isValidDescription(description)) {
+        alert("Description cannot start or end with space and contain repeated words");
+        return false;
+    }
+    
+    // No negative number
+    if (!isValidAmount(amount)) {
+        alert("Must be positive");
+        return false;
+    }
+
+    // date validation
+    if (!isValidDate(date)) {
+        alert("Date format is not valid");
+        return false;
+    }
+
+    // validate category and customizeCategory
+    if (category === "other") {
+        if (!isValidCategory(customizeCategory)) {
+            alert("Must contain only letters, spaces or hyphens");
+            return false;
+        }
+    } else {
+        if (!isValidCategory(category)) {
+            alert("Must enter a category.")
+            return false;
+        }
+    }
+
+    //  validate type
+     if (type !== "income" && type !== "expense") {
+        alert ("Please choose a valid transaction type.")
+        return false;
+     }
+
+    //  return true if everything passed
+     return true; 
 
 }

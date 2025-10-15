@@ -163,18 +163,31 @@ header .brand h1 {
 /* 1. Add or Edit form  */
 
 .form {
-    color: rgba(0, 0, 0, 0.8);
-    padding:1.5rem;
-    background-color: rgba(237, 233, 233, 0.918);
-    border-radius: 10px;
+    color: rgba(0, 0, 0, 0.9);
+    padding:2rem;
+    background-color: #f7f6f6;
+    border-radius: 12px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
     max-width: 500px;
-    margin:auto
+    margin:2rem auto;
+    transition: transform 0.3s ease;
 
 }
 
+.form:hover {
+    transform: translateY(-3px);
+}
+
+.form h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    color: rgb(79, 11, 142);
+}
+
 label {
-    font-weight: 500;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
 
 }
 
@@ -182,8 +195,15 @@ input, select {
     width: 100%;
     padding: 0.5rem;
     border-radius: 8px;
-    border: 1px solid rgba(0, 0, 0, 0.373);
+    border: 1px solid rgba(0, 0, 0, 0.25);
     font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s, box-shaddow 0.3s;
+}
+
+input:focus, select:focus {
+    border-color:  rgb(79, 11, 142);
+    box-shadow: 0 0 5px rgba(79, 11, 142, 0.3);
 }
 
 .form-act {
@@ -200,33 +220,162 @@ input, select {
     gap: 0.5rem;
 }
 
+fieldset legend {
+    font-weight: 600;
+    color: rgb(79, 11, 142);
+}
 fieldset div {
     display: flex;
     align-items: center;
     gap: 0.5rem;
-    margin-bottom: 0.3rem;
+    margin-bottom: 0.5rem;
 }
 
 .save-button, .reset-button {
+    padding: 0.6rem 1.2rem;
     font: rgba(237, 233, 233, 0.919);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
     border: 1px solid rgba(0, 0, 0, 0.177);
-    border-radius: 6px;
-    font-weight: 500;
-
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all 0.2s ease;
 }
+
+.save-button {
+    background-color: rgb(79, 11, 142);
+    color:#fff;
+}
+
+.save-button:hover {
+    background-color: rgb(102, 35, 189);
+}
+
+.reset-button {
+    background-color: #e0e0e0;
+    color:#333
+}
+
+.reset-button:hover {
+    background-color: #d5d5d5;
+}
+
+#customizeCategory {
+    margin-top: 0.5rem;
+    display:none;
+}
+
 
 
 /* 2. Records */
 
+
 .records {
     color: rgba(0, 0, 0, 0.8);
     padding:2rem;
-    background-color: rgba(237, 233, 233, 0.918);
+    background-color:  #f7f6f6;
     border-radius: 10px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.128);
-    max-width: 700px;
-    margin: auto;
+    max-width: 600px;
+    margin: 2rem auto;
+}
+
+.records-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.export-btn {
+    background-color: rgb(79, 11, 142);
+    color: white;
+    border: none;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.2s;
+}
+
+.export-btn:hover {
+    background-color:rgb(73, 73, 255);
+    transform: scale(1.03);
+}
+
+
+.records h3 {
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 1.8rem;
+    color: rgb(79, 11, 142);
+}
+
+.record-list {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 1rem;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.record-item {
+    display: grid;
+    grid-template-columns: 120px 1fr 120px 120px;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid #ddd;
+    transition: background-color 0.3s ease;
+}
+
+.record-item:hover {
+    background-color: #f7f7f7;
+}
+
+.record-item:last-child {
+    border-bottom: none;
+}
+
+.record-date {
+    font-size: 0.9rem;
+    color:#555
+}
+
+.record-description {
+    font-weight: 600;
+    color:#333
+}
+
+.record-category {
+    background-color: #eee;
+    border-radius: 8px;
+    padding: 0.25rem 0.6rem;
+    text-align: center;
+    font-size: 0.85rem;
+    font-weight: 500;
+    text-transform: capitalize;
+    color: #444;
+}
+
+.record-amount {
+  font-weight: bold;
+  font-size: 1rem;
+  text-align: right;
+}
+
+.record-amount.income {
+  color: #0c7d32;
+}
+
+.record-amount.expense {
+  color: #d11a2a;
+}
+
+.record-header {
+    font-weight: bold;
+    background-color: rgba(79, 11, 142, 0.1);
+    color: rgb(79, 11, 142);
+    border-radius: 8px;
+    padding: 0.5rem 1rem;
 }
 
 .filters {
@@ -259,4 +408,159 @@ fieldset div {
 }
 
 
+/* Dachboard section */
 
+.dashboard {
+  padding: 2rem;
+  background-color: #f7f7f7;
+  color: #222;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.dashboard-header h3 {
+  font-size: 1.6rem;
+  color: #2d2d2d;
+}
+
+.dashboard-header p {
+  color: rgba(0, 0, 0, 0.6);
+  margin-top: 0.3rem;
+}
+
+/*grid for the 4 cards */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1.2rem;
+}
+
+/* Individual Cards */
+.dashboard-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  padding: 1.2rem 1.5rem;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.dashboard-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 10px rgba(136, 14, 192, 0.15);
+}
+
+.dashboard-card h4 {
+  font-size: 1rem;
+  color: rgba(0, 0, 0, 0.7);
+  margin-bottom: 0.4rem;
+}
+
+.dashboard-card .amount {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #222;
+}
+
+/* Optional icons — placeholder */
+.dashboard-card::after {
+  content: "💰";
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  font-size: 1.2rem;
+  opacity: 0.3;
+}
+
+/* Example color overrides */
+#total-balance::after { content: "💼"; }
+#total-income::after { content: "⬆️"; }
+#total-expenses::after { content: "⬇️"; }
+#savings::after { content: "🏦"; }
+
+/* stats, trend and cap*/
+
+.stats-summary, .trend-section, .cap-section {
+  background-color: #fff;
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.stats-summary h4,
+.trend-section h4,
+.cap-section h4 {
+  font-size: 1.1rem;
+  color: #2d2d2d;
+  margin-bottom: 0.8rem;
+}
+
+.stats-summary p {
+  margin-bottom: 0.4rem;
+  color: rgba(0, 0, 0, 0.8);
+}
+
+/* Trend chart */
+.trend-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.6rem;
+  height: 100px;
+  padding: 0.5rem 0;
+}
+
+.trend-bar {
+  flex: 1;
+  background-color: rgba(79, 11, 142, 0.65);
+  border-radius: 6px;
+  transition: height 0.4s ease; 
+  background-color: 0.3s ease;
+}
+
+/* Color coding */
+.trend-bar.low {
+  background-color: #a76cf5;
+}
+.trend-bar.high {
+  background-color: #520b91;
+}
+
+/* Cap Tracker */
+.cap-section input {
+  padding: 0.6rem;
+  border: 1px solid rgba(0,0,0,0.2);
+  border-radius: 8px;
+  width: 200px;
+  margin-right: 0.5rem;
+}
+
+.cap-section button {
+  padding: 0.6rem 1.2rem;
+  border: none;
+  border-radius: 8px;
+  background-color: rgb(79, 11, 142);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.cap-section button:hover {
+  background-color: rgb(95, 21, 160);
+}
+
+#cap-status {
+  margin-top: 0.8rem;
+  font-weight: bold;
+}
+
+#cap-status.ok {
+  color: green;
+}
+
+#cap-status.over {
+  color: red;
+}
