@@ -148,19 +148,6 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 });
 
-// Theme Toggle (Switch)
-// const themeToggle = document.getElementById("themeToggle");
-// if (themeToggle) {
-//     const savedTheme = localStorage.getItem("theme") || "light";
-//     document.body.classList.toggle("dark-theme", savedTheme === "dark");
-//     themeToggle.checked = savedTheme === "dark";
-
-//     themeToggle.addEventListener("change", function() {
-//         const isDark = themeToggle.checked;
-//         document.body.classList.toggle("dark-theme", isDark);
-//         localStorage.setItem("theme", isDark ? "dark" : "light");
-//     });
-// }
 
 // Theme Toggle
 const themeSelect = document.getElementById("theme");
@@ -442,11 +429,24 @@ function updateStatistics() {
     }
 }
 
+
 // load correctly dahsborad, records and stats when the page opens
 document.addEventListener("DOMContentLoaded", function() {
     displayTransactions();
     refreshDashboard();
     updateStatistics();
+
+    // Reset Data button
+    const resetBtn = document.getElementById("reset-data");
+    if (resetBtn) {
+        resetBtn.addEventListener("click", () => {
+            if (confirm("Are you sure you want to delete all your data? This cannot be undone.")) {
+                localStorage.clear();
+                alert("All data has been reset!");
+                location.reload();
+            }
+        });
+    }
 });
 
 
