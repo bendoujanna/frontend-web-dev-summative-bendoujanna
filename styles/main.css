@@ -86,7 +86,7 @@ header .brand h1 {
 
 .home h3 {
     text-align: center;
-    color:rgba(0, 0, 0, 0.748);
+    color:rgb(139, 49, 223);
     margin-top: 2rem;
     margin-bottom: 2rem;
     
@@ -147,12 +147,34 @@ header .brand h1 {
     .menu-buttons {
         flex-direction: row;
     }
+    .records-list,
+    .form,
+    .settings {
+        padding: 1rem 2rem;
+    }
+    .record-item {
+    grid-template-columns: 130px 1fr 110px 110px;
+    padding: 0.8rem 1rem;
+    font-size: 1rem;
+    }
 }
+
 
 @media (min-width: 1024px) {
     main {
         max-width: 1200px;
         margin: auto;
+    }
+    .dashboard,
+    .records,
+    .form,
+    .settings {
+        padding:2rem
+    }
+    .record-item {
+        grid-template-columns: 180px 1fr 120px 120px;
+        max-width: 1000px;
+        margin: 0 auto 1rem;
     }
 }
 
@@ -318,14 +340,20 @@ fieldset div {
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
+
 .record-item {
     display: grid;
-    grid-template-columns: 120px 1fr 120px 120px;
+    grid-template-columns: 100px 1fr 90px 90px;
     align-items: center;
-    padding: 0.75rem 1rem;
-    border-bottom: 1px solid #ddd;
-    transition: background-color 0.3s ease;
+    background-color: var(--card-bg);
+    padding: 0.6rem 0.8rem;
+    border-radius: 8px;
+    margin-bottom: 0.6rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+    font-size: 0.9rem; 
+    word-wrap: break-word;
 }
+
 
 .record-item:hover {
     background-color: #f7f7f7;
@@ -408,7 +436,7 @@ fieldset div {
 }
 
 
-/* Dachboard section */
+/* 3. Dachboard section */
 
 .dashboard {
   padding: 2rem;
@@ -466,7 +494,7 @@ fieldset div {
   color: #222;
 }
 
-/* Optional icons — placeholder */
+/*optional items placeholder */
 .dashboard-card::after {
   content: "💰";
   position: absolute;
@@ -564,3 +592,65 @@ fieldset div {
 #cap-status.over {
   color: red;
 }
+
+
+/* Default (Light) Theme */
+body {
+    background-color: #f9f9f9;
+    color: #222;
+    transition: background 0.3s, color 0.3s;
+}
+
+/* Dark Theme */
+body.dark-theme {
+    background-color: #121212e6;
+    color: #f1f1f1;
+}
+
+/* Dark mode tweaks for input and cards */
+body.dark-theme input,
+body.dark-theme select,
+body.dark-theme textarea {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #555;
+}
+
+body.dark-theme .trend-bar {
+    background-color: #6a4bcf; 
+}
+
+body.dark-theme .dashboard-card,
+body.dark-theme .stats-summary,
+body.dark-theme .trend-section,
+body.dark-theme .cap-section {
+    background-color: #252525; 
+    color: #f1f1f1;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+/* Dashboard and records titles & labels - dark Theme */
+body.dark-theme .dashboard-card h4,
+body.dark-theme .stats-summary h4,
+body.dark-theme .trend-section h4,
+body.dark-theme .cap-section h4,
+body.dark-theme .record-date,
+body.dark-theme .record-description {
+    color: #e0e0e0; 
+}
+
+body.dark-theme .stats-summary p {
+    color: #dcdcdc; 
+}
+
+body.dark-theme .record-item {
+    background-color: #2a2a2a;
+    color: #f1f1f1;
+    border-bottom: 1px solid #444;
+}
+
+body.dark-theme .record-item.record-header {
+    background-color: #3a3a3a;
+    color: #fff;
+}
+

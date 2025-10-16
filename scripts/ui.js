@@ -1,153 +1,219 @@
-// PART 1
+// Transitions 
 
-//select all the buttons
+// Select all menu buttons
 const buttons = document.querySelectorAll('.menu-button');
 
-//select all the sections inside main
-const sections=document.querySelectorAll('main section');
+// Select all sections
+const sections = document.querySelectorAll('main section');
 
-//keep the section currenlty visible
-let currentSection=document.querySelector('.active');
+// Current active section
+let currentSection = document.querySelector('.active');
 
-//prevent from disturbing the transition
+// Prevent multiple animations at the same time
 let whileAnimating = false;
 
+// Function to switch sections
 function switchTo(targetId) {
-    if (whileAnimating) {
-        return;
-    }
-    if (currentSection.id === targetId) {
-        return;
-    }
-    
+    if (whileAnimating) return;
+    if (currentSection.id === targetId) return;
+
     whileAnimating = true;
     const nextSection = document.getElementById(targetId);
 
-    //make the sections moving to the left
     currentSection.classList.remove('active');
     currentSection.classList.add('prev');
 
-    //show another (new) section on the the right
     nextSection.classList.add('active');
 
-    //
-    nextSection.addEventListener('transitionend', function handler(){
+    nextSection.addEventListener('transitionend', function handler() {
         currentSection.classList.remove('prev');
         currentSection = nextSection;
-        nextSection.removeEventListener('transitionend', handler); //remove the istener to avoid repetitions
-        whileAnimating = false; //end of the animation
+        nextSection.removeEventListener('transitionend', handler);
+        whileAnimating = false;
 
         const firstElement = nextSection.querySelector('*');
         if (firstElement) firstElement.focus();
     });
-
 }
 
-//add listeners on each button'
-buttons.forEach((button) => {
-    button.addEventListener('click', () => {
-        const targetId=button.dataset.target;
-        switchTo(targetId);  //calling the function
+// Add click event to each menu button
+buttons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        const targetId = button.dataset.target;
+        switchTo(targetId);
     });
 });
 
-
-//back to home buttons
+// Back to home buttons
 const backButtons = document.querySelectorAll('.back-home');
-
-backButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        switchTo('home')  //go back to Home section
+backButtons.forEach(function(button) {
+    button.addEventListener('click', function() {
+        switchTo('home');
     });
 });
 
-
-//Improving Accessibility 
+// Accessibility: aria-hidden
 function updateAria() {
-    sections.forEach((section) => {
-        const isVisible = section.classList.contains('active');
-        section.setAttribute('aria-hidden', !isVisible)
+    sections.forEach(function(section) {
+        if (section.classList.contains('active')) {
+            section.setAttribute('aria-hidden', false);
+        } else {
+            section.setAttribute('aria-hidden', true);
+        }
     });
 }
 
-//calling the function at each change
+// Call updateAria every time section changes
 const oldSwitchTo = switchTo;
-switchTo = function (targetId) {
-   oldSwitchTo(targetId);
-   updateAria(); 
+switchTo = function(targetId) {
+    oldSwitchTo(targetId);
+    updateAria();
 };
 
-
-
-// PART 2
-
-//Make the "other" category editable
+//  Category "Other" 
 const categorySelect = document.getElementById("category");
 const customizeCategoryInput = document.getElementById("customizeCategory");
 
 categorySelect.addEventListener("change", function() {
-    if (categorySelect.value == "other") {
-        customizeCategoryInput.style.display="block";
+    if (categorySelect.value === "other") {
+        customizeCategoryInput.style.display = "block";
         customizeCategoryInput.required = true;
-    }  
-    else {
-        customizeCategoryInput.style.display="none";
+    } else {
+        customizeCategoryInput.style.display = "none";
         customizeCategoryInput.required = false;
         customizeCategoryInput.value = "";
     }
+});
 
 
-})
+
+// Settings
+
+// Multi-Currency
+let currencies = {
+    base: "$",
+    other1: "€",
+    other2: "F"
+};
+
+let rates = {
+    "$": 1,
+    "€": 0.93,
+    "F": 600
+};
+
+let selectedCurrency = currencies.base;
+
+// function convertAmount(amount, targetCurrency) {
+//     let baseToTarget = rates[targetCurrency] / rates[currencies.base];
+//     return amount * baseToTarget;
+// }
 
 
-/*Form handling - Add/Edit transactions */
 
-// Select the form
+// Settings dropdown
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Display Currency Selection
+    const displayCurrencySelect = document.getElementById("display-currency");
+
+    if (displayCurrencySelect) {
+        displayCurrencySelect.addEventListener("change", function() {
+            selectedCurrency = displayCurrencySelect.value; // Update displayed currency
+            refreshDashboard();  // Refresh dashboard numbers
+            applyFilters();      // Refresh records display
+        });
+    }
+
+
+    const rate1Input = document.getElementById("rate1");
+    const rate2Input = document.getElementById("rate2");
+
+    if (rate1Input) {
+        rate1Input.addEventListener("input", function() {
+            const value = parseFloat(rate1Input.value);
+            if (!isNaN(value)) rates[currencies.other1] = value;
+            refreshDashboard();
+            applyFilters();
+        });
+    }
+
+    if (rate2Input) {
+        rate2Input.addEventListener("input", function() {
+            const value = parseFloat(rate2Input.value);
+            if (!isNaN(value)) rates[currencies.other2] = value;
+            refreshDashboard();
+            applyFilters();
+        });
+    }
+});
+
+// Theme Toggle (Switch)
+// const themeToggle = document.getElementById("themeToggle");
+// if (themeToggle) {
+//     const savedTheme = localStorage.getItem("theme") || "light";
+//     document.body.classList.toggle("dark-theme", savedTheme === "dark");
+//     themeToggle.checked = savedTheme === "dark";
+
+//     themeToggle.addEventListener("change", function() {
+//         const isDark = themeToggle.checked;
+//         document.body.classList.toggle("dark-theme", isDark);
+//         localStorage.setItem("theme", isDark ? "dark" : "light");
+//     });
+// }
+
+// Theme Toggle
+const themeSelect = document.getElementById("theme");
+if (themeSelect) {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.body.classList.toggle("dark-theme", savedTheme === "dark");
+    themeSelect.value = savedTheme;
+
+    themeSelect.addEventListener("change", function() {
+        const selectedTheme = themeSelect.value;
+        document.body.classList.toggle("dark-theme", selectedTheme === "dark");
+        localStorage.setItem("theme", selectedTheme);
+    });
+}
+
+
+
+
+// Form Handling
 const form = document.getElementById("transaction-form");
 
-// Handle form submission
-form.addEventListener("submit", function (event) {
-    event.preventDefault(); // stop the page from reloading
+form.addEventListener("submit", function(event) {
+    event.preventDefault();
 
-    // Get the checked radio button for "type"
     const selectedType = document.querySelector('input[name="type"]:checked');
 
-    // Collect data from the form safely
     const formData = {
         description: document.getElementById("description").value.trim(),
         amount: document.getElementById("amount").value.trim(),
         date: document.getElementById("date").value,
         category: document.getElementById("category").value,
         customizeCategory: document.getElementById("customizeCategory").value.trim(),
-        type: selectedType ? selectedType.value : "" // prevent null
+        type: selectedType ? selectedType.value : ""
     };
 
-    // show in console
-    console.log("Form data collected:", formData);
+    if (!validateForm(formData)) return;
 
-    // Validate form inputs
-    if (!validateForm(formData)) {
-        console.warn(" Validation failed.");
-        return; // stop here if invalid
-    }
-
-    // Save transaction
     const newTransaction = saveTransaction(formData);
-    console.log("Transaction saved:", newTransaction);
 
-    alert("Transaction saved successfully!");
+    alert("Transaction saved!");
 
-    // update record 
+    // Immediately update stats and dashboard
     displayTransactions();
-
-    // Reset form and hide the custom category
+    refreshDashboard();
+    updateStatistics();
     form.reset();
-    document.getElementById("customizeCategory").style.display = "none";
-
+    customizeCategoryInput.style.display = "none";
 });
 
-// Global function to display transactions
-function displayTransactions(filteredList = null) {
+
+
+//Display Transactions 
+function displayTransactions(filteredList) {
     const listContainer = document.querySelector(".records-list");
     const transactions = filteredList || getTransactions();
 
@@ -159,7 +225,7 @@ function displayTransactions(filteredList = null) {
     }
 
     const headerDiv = document.createElement("div");
-    headerDiv.classList.add("record-item", "record-header"); 
+    headerDiv.classList.add("record-item", "record-header");
     headerDiv.innerHTML = `
         <div class="record-date">Date</div>
         <div class="record-description">Description</div>
@@ -168,13 +234,14 @@ function displayTransactions(filteredList = null) {
     `;
     listContainer.appendChild(headerDiv);
 
-    transactions.forEach(t => {
+    transactions.forEach(function(t) {
         const div = document.createElement("div");
         div.classList.add("record-item");
 
         const amountClass = t.type === "income" ? "income" : "expense";
-        const formattedAmount =
-            (t.type === "income" ? "+" : "-") + "$" + parseFloat(t.amount).toFixed(2);
+        const baseAmount = parseFloat(t.amount);
+        const convertedAmount = (baseAmount / rates[currencies.base]) * rates[selectedCurrency];
+        const formattedAmount = (t.type === "income" ? "+" : "-") + selectedCurrency + convertedAmount.toFixed(2);
 
         div.innerHTML = `
             <div class="record-date">${t.date}</div>
@@ -188,8 +255,8 @@ function displayTransactions(filteredList = null) {
 }
 
 
-/*Filters and search*/
 
+// Filters
 function applyFilters() {
     const searchValue = document.getElementById("searchInput").value.toLowerCase();
     const sortByDate = document.getElementById("sortByDate").value;
@@ -198,117 +265,188 @@ function applyFilters() {
 
     let filtered = getTransactions();
 
-    //Search
     if (searchValue) {
-        filtered = filtered.filter(t =>
-        t.description.toLowerCase().includes(searchValue) ||
-        t.category.toLowerCase().includes(searchValue)
-        );
+        filtered = filtered.filter(function(t) {
+            return t.description.toLowerCase().includes(searchValue) ||
+                   t.category.toLowerCase().includes(searchValue);
+        });
     }
 
-    //Category Filter
     if (sortByCategory !== "all") {
-        filtered = filtered.filter(t => t.category.toLowerCase() === sortByCategory);
+        filtered = filtered.filter(function(t) {
+            return t.category.toLowerCase() === sortByCategory;
+        });
     }
 
-    //Type Filter
     if (sortByType !== "all") {
-        filtered = filtered.filter(t => t.type === sortByType);
+        filtered = filtered.filter(function(t) {
+            return t.type === sortByType;
+        });
     }
 
-    //Sort by Date
-    filtered.sort((a, b) => {
+    filtered.sort(function(a, b) {
         const da = new Date(a.date);
         const db = new Date(b.date);
         return sortByDate === "newest" ? db - da : da - db;
     });
 
     displayTransactions(filtered);
-    }
+}
 
-//Listen for changes on all filters
+// Listen to filter changes
 document.getElementById("searchInput").addEventListener("input", applyFilters);
 document.getElementById("sortByDate").addEventListener("change", applyFilters);
 document.getElementById("sortByCategory").addEventListener("change", applyFilters);
 document.getElementById("sortByType").addEventListener("change", applyFilters);
 
-// Show saved transactions when the page loads
-document.addEventListener("DOMContentLoaded", () => {
+
+
+// Dashboard 
+
+function getCurrencySymbol() {
+    return selectedCurrency;
+}
+
+function updateDashboard() {
+
+    const transactions = getTransactions();
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    transactions.forEach(function(t) {
+        const amount = parseFloat(t.amount);
+        if (!isNaN(amount)) {
+            if (t.type === "income") totalIncome += amount;
+            if (t.type === "expense") totalExpenses += amount;
+        }
+    });
+
+    const totalBalance = totalIncome - totalExpenses;
+    const savings = totalIncome > 0 ? (totalBalance / totalIncome) * 100 : 0;
+
+    // Conversion according to the currency slected
+    const baseRate = rates[currencies.base] || 1;
+    const selectedRate = rates[selectedCurrency] || 1;
+
+    const convertedIncome = (totalIncome / baseRate) * selectedRate;
+    const convertedExpenses = (totalExpenses / baseRate) * selectedRate;
+    const convertedBalance = (totalBalance / baseRate) * selectedRate;
+
+    const symbol = getCurrencySymbol();
+
+    document.getElementById("income-amount").textContent = symbol + convertedIncome.toFixed(2);
+    document.getElementById("expense-amount").textContent = symbol + convertedExpenses.toFixed(2);
+    document.getElementById("balance-amount").textContent = symbol + convertedBalance.toFixed(2);
+    document.querySelector(".savings-amount").textContent = savings.toFixed(1) + "%";
+
+}
+
+
+
+//Cap Tracker 
+let spendingCap = 0;
+
+document.getElementById("set-cap").addEventListener("click", function() {
+    spendingCap = parseFloat(document.getElementById("cap-input").value);
+    if (isNaN(spendingCap) || spendingCap <= 0) {
+        alert("Please enter a valid cap amount.");
+        return;
+    }
+    checkCapStatus();
+});
+
+function checkCapStatus() {
+    const transactions = getTransactions();
+    let totalExpenses = 0;
+    transactions.forEach(function(t) {
+        if (t.type === "expense") totalExpenses += parseFloat(t.amount);
+    });
+
+    const convertedTotalExpenses = (totalExpenses / rates[currencies.base]) * rates[selectedCurrency];
+    const convertedCap = (spendingCap / rates[currencies.base]) * rates[selectedCurrency];
+
+    const capStatus = document.getElementById("cap-status");
+    if (convertedTotalExpenses > convertedCap) {
+        capStatus.textContent = "You've exceeded your cap by " + (convertedTotalExpenses - convertedCap).toFixed(2) + "!";
+        capStatus.className = "over";
+    } else {
+        capStatus.textContent = "You have " + (convertedCap - convertedTotalExpenses).toFixed(2) + " remaining.";
+        capStatus.className = "ok";
+    }
+}
+
+
+
+// Refresh 
+function refreshDashboard() {
+    updateDashboard();
+    checkCapStatus();
+    applyFilters();
+}
+
+// Load dashboard on page load
+document.addEventListener("DOMContentLoaded", function() {
     displayTransactions();
+    refreshDashboard();
 });
 
 
-/** export filtered transactions to csv **/
 
-function exportToCSV() {
-    // Get the current filtered transactions
-    const searchValue = document.getElementById("searchInput").value.toLowerCase();
-    const sortByDate = document.getElementById("sortByDate").value;
-    const sortByCategory = document.getElementById("sortByCategory").value;
-    const sortByType = document.getElementById("sortByType").value;
 
-    let transactions = getTransactions();
+// stats section
 
-    // Apply same filters before export
-    if (searchValue) {
-        transactions = transactions.filter(t =>
-            t.description.toLowerCase().includes(searchValue) ||
-            t.category.toLowerCase().includes(searchValue)
+function updateStatistics() {
+    const transactions = getTransactions();
+    const totalRecords = transactions.length;
+
+    // Total Records
+    const totalRecordsEl = document.getElementById("total-records");
+    if (totalRecordsEl) totalRecordsEl.textContent = totalRecords;
+
+    // Top Category
+    const topCategoryEl = document.getElementById("top-category");
+    if (transactions.length > 0) {
+        const categoryCount = {};
+        transactions.forEach(t => {
+            const cat = t.category.toLowerCase();
+            categoryCount[cat] = (categoryCount[cat] || 0) + 1;
+        });
+        const topCategory = Object.keys(categoryCount).reduce((a, b) =>
+            categoryCount[a] > categoryCount[b] ? a : b
         );
+        topCategoryEl.textContent = topCategory;
+    } else {
+        topCategoryEl.textContent = "N/A";
     }
 
-    if (sortByCategory !== "all") {
-        transactions = transactions.filter(t => t.category.toLowerCase() === sortByCategory);
+    // Trend (last 7 days)
+    const trendContainer = document.getElementById("trend-chart");
+    if (trendContainer) {
+        const today = new Date();
+        const last7 = Array(7).fill(0);
+
+        transactions.forEach(t => {
+            const diffDays = Math.floor((today - new Date(t.date)) / (1000 * 60 * 60 * 24));
+            if (diffDays >= 0 && diffDays < 7) {
+                last7[6 - diffDays]++; // most recent on the right
+            }
+        });
+
+        trendContainer.innerHTML = "";
+        last7.forEach(val => {
+            const bar = document.createElement("div");
+            bar.classList.add("trend-bar");
+            bar.style.height = `${val * 20}px`; // each record = 20px tall
+            trendContainer.appendChild(bar);
+        });
     }
-
-    if (sortByType !== "all") {
-        transactions = transactions.filter(t => t.type === sortByType);
-    }
-
-    // Sort by date
-    transactions.sort((a, b) => {
-        const da = new Date(a.date);
-        const db = new Date(b.date);
-        return sortByDate === "newest" ? db - da : da - db;
-    });
-
-    // Stop if empty
-    if (transactions.length === 0) {
-        alert("No transactions to export.");
-        return;
-    }
-
-    // Define CSV headers
-    const headers = ["ID", "Description", "Amount", "Category", "Type", "Date", "CreatedAt", "UpdatedAt"];
-
-    // Convert to CSV string
-    const rows = transactions.map(t => [
-        t.id,
-        `"${t.description.replace(/"/g, '""')}"`, // Escape quotes
-        t.amount,
-        t.category,
-        t.type,
-        t.date,
-        t.createdAt,
-        t.updatedAt
-    ]);
-
-    const csvContent = [headers, ...rows].map(row => row.join(",")).join("\n");
-
-    // Create downloadable CSV
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = "transactions.csv";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-
-    console.log("CSV exported successfully!");
 }
 
-// Attach event listener
-document.getElementById("exportCSV").addEventListener("click", exportToCSV);
+// load correctly dahsborad, records and stats when the page opens
+document.addEventListener("DOMContentLoaded", function() {
+    displayTransactions();
+    refreshDashboard();
+    updateStatistics();
+});
+
 

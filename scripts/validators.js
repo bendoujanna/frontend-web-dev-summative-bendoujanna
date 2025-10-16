@@ -23,6 +23,16 @@ function isValidCategory(type) {
     return categRegex.test(type);
 }
 
+function hasTwoCents(value) {
+  const centsRegex = /\.\d{2}\b/;
+  return centsRegex.test(value);
+}
+
+function containsBeverage(text) {
+  const beverageRegex = /(coffee|tea)/i;
+  return beverageRegex.test(text);
+}
+
 //  main validation function
 function validateForm(formData) {
     const {description, amount, date, category, customizeCategory, type} = formData;
@@ -49,6 +59,14 @@ function validateForm(formData) {
     if (!isValidAmount(amount)) {
         alert("Must be positive");
         return false;
+    }
+
+    if (hasTwoCents(amount)) {
+        console.log(" Amount includes cents.");
+    }
+
+    if (containsBeverage(description)) {
+        console.log(" Beverage-related transaction detected!");
     }
 
     // date validation

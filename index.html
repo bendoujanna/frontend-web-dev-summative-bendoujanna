@@ -16,7 +16,7 @@
             </a>
             <h1>FinanceTracker</h1>
         </div>
-        <p>Take care of your financial health!</p>
+        <p>Take care of your financial health</p>
     </header>
     <main id="main">
 
@@ -32,7 +32,7 @@
         </section>
 
         <section id="dashboard" class="dashboard">
-            <!-- <button class="back-home">← Back to Home</button> -->
+            
             <div class="dashboard-header">
                 <h3>Dashboard overview</h3>
                 <p>Track your financial health</p>
@@ -42,24 +42,24 @@
 
                 <div class="dashboard-card" id="total-balance">
                     <h4>Total Balance</h4>
-                    <p id="amount">$0.00</p>
+                    <p id="balance-amount">$0.00</p>
                 </div>
 
                 <div class="dashboard-card" id="total-income">
                     <h4>Income</h4>
-                    <p id="amount">$0.00</p>
+                    <p id="income-amount">$0.00</p>
                 </div>
 
                  <div class="dashboard-card" id="total-expenses">
                     <h4>Expenses</h4>
-                    <p id="amount">$0.00</p>
+                    <p id="expense-amount">$0.00</p>
                 </div>
 
                 <div class="dashboard-card" id="savings">
                     <h4>Savings</h4>
-                    <p class="amount">$0.00</p>
+                    <p class="savings-amount">$0.00</p>
                 </div>
-            
+            </div>
 
             <div class="stats-summary">
                 <h4>Statistics</h4>
@@ -88,7 +88,7 @@
         <section id="records" class="records"> 
             <div class="records-header">
                 <h3>Transaction Records</h3>
-                <button id="exportcsv" class="export-btn">⭳ Export CSV</button>
+                <button id="exportCSV" class="export-btn">⭳ Export CSV</button>
             </div>
             <div class="filters">
                 <div class="filter-row">
@@ -233,21 +233,66 @@
         </section>
 
         <section id="settings" class="settings">
+            <h4>Settings</h4>
+            <h4>Currency Settings</h4>
+
+            <label for="base-currency">Base currency:</label>
+            <select id="base-currency">
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="F">CFA (F)</option>
+            </select>
+
+            <label for="currency1">Other currency 1:</label>
+            <select id="currency1">
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="F">CFA (F)</option>
+            </select>
+
+            <label for="rate1">Rate:</label>
+            <input type="number" id="rate1" value="1" step="0.01">
+
+            <label for="currency2">Other currency 2:</label>
+            <select id="currency2">
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="F">CFA (F)</option>
+            </select>
+            <label for="rate2">Rate:</label>
+            <input type="number" id="rate2" value="1" step="0.01">
+
+            <label for="display-currency">Display Currency:</label>
+             <select id="display-currency">
+                <option value="$">USD ($)</option>
+                <option value="€">EUR (€)</option>
+                <option value="F">CFA (F)</option>
+            </select>
+
+            <div class="setting-group">
+                <label for="theme">Theme:</label>
+                <select id="theme">
+                    <option value="light">Light</option>
+                    <option value="dark">Dark</option>
+                </select>
+            </div>
             <button class="back-home">← Back to Home</button>
-            Settings content
+            
         </section>
 
         <section id="about" class="about">
+            <h4>About</h4>
+            
+
             <button class="back-home">← Back to Home</button>
-            About content
         </section>
         
 
     </main>
-    <footer>
-        <!-- <a href="githublink">Github</a>
+    <!-- <footer>
+         <a href="githublink">Github</a>
         <a href="b.vitalina@alustudent.com">Email me</a> -->
-    </footer>
+    <!-- </footer> --> 
 
     <script src="scripts/validators.js"></script>
     <script src="scripts/storage.js"></script>
