@@ -86,4 +86,23 @@ python -m http.server
     
     All operations are performed client-side with no external server required
 
+**Regex Catalog**
+
+    (e.g., /^\S(?:.*\S)?$/) : forbid leading/trailing spaces and collapse doubles in the description
+    
+     ^(0|[1-9]\d*)(\.\d{1,2})?$  : Numeric field (amount)
+    
+     ^\d{4}-(0[1-9]|1[0-2])-(0[1-9]|[12]\d|3[01])$  :  date 
+    
+    /^[A-Za-z]+(?:[ -][A-Za-z]+)*$/  : Category/tag (letters, spaces, hyphens)
+    
+     \b(\w+)\s+\1\b  :  catch duplicate words
+    
+     Example search patterns:
+    
+    /\.\d{2}\b/  : Cents present
+    
+    /(coffee|tea)/i :  Beverage keyword
+
+
 **Demo video**
