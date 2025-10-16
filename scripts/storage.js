@@ -1,75 +1,78 @@
-/*Handles saving, reading, updating, and deleting transactions in localStorage*/
 
-// Get all transactions from localStorage
+const STORAGE_KEY = "app:data";
 
-console.log("validators.js loaded!")
-function getTransactions() {
-    const data = localStorage.getItem("transactions");
-    return data ? JSON.parse(data) : [];
-}
-
-// Save all transactions back to localStorage
-function saveTransactionsToStorage(transactions) {
-    localStorage.setItem("transactions", JSON.stringify(transactions));
-}
-
-// Create a new transaction and store it
-function saveTransaction(formData) {
-    const transactions = getTransactions();
-
-    const id = "rec_" + Date.now();
-    const now = new Date().toISOString();
-
-    const newTransaction = {
-        id: id,
-        description: formData.description.trim(),
-        amount: parseFloat(formData.amount),
-        category: formData.category === "other"
-            ? formData.customizeCategory.trim()
-            : formData.category,
-        date: formData.date,
-        type: formData.type,
-        createdAt: now,
-        updatedAt: now
-    };
-
-    transactions.push(newTransaction);
-    saveTransactionsToStorage(transactions);
-
-    console.log("Transaction saved:", newTransaction);
-    return newTransaction;
-}
-
-// Update an existing transaction
-function updateTransaction(id, updatedData) {
-    const transactions = getTransactions();
-    const index = transactions.findIndex(t => t.id === id);
-
-    if (index !== -1) {
-        transactions[index] = {
-            ...transactions[index],
-            ...updatedData,
-            updatedAt: new Date().toISOString()
-        };
-        saveTransactionsToStorage(transactions);
-        console.log(`Transaction ${id} updated.`);
-        return true;
+// Load data (from localStorage or seed.json if empty)
+export async function loadData() {
+    const dataStr = localStorage.getItem(STORAGE_KEY);
+    if (dataStr) {
+        try {
+            const data = JSON.parse(dataStr);
+            return Array.isArray(data) ? data : [];
+        } catch (err) {
+            console.error("Error parsing localStorage data:", err);
+            return [];
+        }
     } else {
-        console.warn(`Transaction ${id} not found.`);
-        return false;
+        try {
+            const response = await fetch("seed.json");
+            const seedData = await response.json();
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(seedData));
+            return seedData;
+        } catch (err) {
+            console.error("Failed to load seed.json:", err);
+            return [];
+        }
     }
 }
 
-// Delete a transaction by ID
-function deleteTransaction(id) {
-    let transactions = getTransactions();
-    transactions = transactions.filter(t => t.id !== id);
-    saveTransactionsToStorage(transactions);
-    console.log(`Transaction ${id} deleted.`);
+// Save array to localStorage
+export function saveData(data) {
+    if (!Array.isArray(data)) return console.error("saveData expects an array");
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+}
+
+// Get transactions synchronously
+export function getTransactions() {
+    const dataStr = localStorage.getItem(STORAGE_KEY);
+    if (!dataStr) return [];
+    try {
+        const data = JSON.parse(dataStr);
+        return Array.isArray(data) ? data : [];
+    } catch (err) {
+        console.error("Error parsing localStorage data:", err);
+        return [];
+    }
+}
+
+// Add new transaction
+export function saveTransaction(transaction) {
+    if (!transaction) return null;
+    const transactions = getTransactions();
+    transaction.id = Date.now();
+    transactions.push(transaction);
+    saveData(transactions);
+    return transaction;
+}
+
+// Update transaction
+export function updateTransaction(updated) {
+    if (!updated?.id) return null;
+    const transactions = getTransactions();
+    const index = transactions.findIndex(t => t.id === updated.id);
+    if (index === -1) return null;
+    transactions[index] = updated;
+    saveData(transactions);
+    return updated;
+}
+
+// Delete transaction
+export function deleteTransaction(id) {
+    const transactions = getTransactions();
+    const newTransactions = transactions.filter(t => t.id !== id);
+    saveData(newTransactions);
 }
 
 // Clear all transactions
-function clearAllTransactions() {
-    localStorage.removeItem("transactions");
-    console.log("All transactions cleared.");
+export function clearAllTransactions() {
+    localStorage.removeItem(STORAGE_KEY);
 }
