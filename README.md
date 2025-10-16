@@ -47,7 +47,7 @@ Open index.html in a web browser.
 
 (Optional) For full browser compatibility, run a local server:
 
-# Python 3.x
+    # Python 3.x
 python -m http.server
 
 **Usage**
@@ -68,22 +68,22 @@ python -m http.server
 
 **Technical Details**
 
-Languages: HTML, CSS, JavaScript
-
-Libraries: Vanilla JavaScript, LocalStorage API, JSON for seed data
-
-Architecture: Modular JS structure separating UI logic, storage, filters, and dashboard calculations
-
-Calculations: Dashboard computes total income, expenses, balance, savings rate, and spending cap dynamically
+    Languages: HTML, CSS, JavaScript
+    
+    Libraries: Vanilla JavaScript, LocalStorage API, JSON for seed data
+    
+    Architecture: Modular JS structure separating UI logic, storage, filters, and dashboard calculations
+    
+    Calculations: Dashboard computes total income, expenses, balance, savings rate, and spending cap dynamically
 
 **Data Management**
 
-Transactions are stored locally in LocalStorage
-
-Default transactions are loaded from seed.json
-
-Currency conversions and calculations are applied to all stored and seeded transactions
-
-All operations are performed client-side with no external server required
+    Transactions are stored locally in LocalStorage
+    
+    Default transactions are loaded from seed.json
+    
+    Currency conversions and calculations are applied to all stored and seeded transactions
+    
+    All operations are performed client-side with no external server required
 
 **Demo video**
