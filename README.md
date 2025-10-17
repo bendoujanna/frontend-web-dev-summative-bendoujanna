@@ -111,4 +111,4 @@ https://bendoujanna.github.io/frontend-web-dev-summative-bendoujanna/
 
 **Demo video**
 
-https://www.loom.com/share/ce73a977cbc04921a48b0dcddd9470d5?sid=3b697c36-71d6-4543-be56-9b548fcf3fb9
+https://www.loom.com/share/29d42bb0b89a471cb416884d48e10dc8?sid=8541a9d4-5da1-4a0b-8bad-c7ea29155de5
