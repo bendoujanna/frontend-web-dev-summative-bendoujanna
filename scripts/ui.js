@@ -1,19 +1,55 @@
 
-import { 
-    getTransactions, 
-    saveTransaction, 
-    updateTransaction, 
+import {
+    getTransactions,
+    saveTransaction,
+    updateTransaction,
     deleteTransaction,
     clearAllTransactions,
     loadData,
     saveData
 } from './storage.js';
 
-// ------------------- MENU -------------------
+// Ensure seed data is loaded into localStorage before anything else
+async function ensureSeedData() {
+    const currentData = localStorage.getItem("app:data");
 
-const buttons = document.querySelectorAll('.menu-button');
-const sections = document.querySelectorAll('main section');
-let currentSection = document.querySelector('.active');
+    if (!currentData || currentData === "[]") {
+        console.log("No data in localStorage, loading seed.json...");
+        try {
+            const res = await fetch("seed.json");
+            const seedData = await res.json();
+
+            // Format seed data: add ids and numeric amounts
+            const formattedSeed = seedData.map((t, i) => ({
+                id: t.id || (Date.now() + i),
+                description: t.description || "",
+                amount: Number(t.amount) || 0,
+                date: t.date || new Date().toISOString().split("T")[0],
+                category: t.category || "other",
+                type: t.type || "expense",
+                createdAt: t.createdAt || new Date().toISOString(),
+                updatedAt: t.updatedAt || new Date().toISOString()
+            }));
+
+            localStorage.setItem("app:data", JSON.stringify(formattedSeed));
+            console.log("Seed data saved to localStorage:", formattedSeed.length, "records");
+        } catch (err) {
+            console.error("Failed to load seed.json:", err);
+        }
+    } else {
+        console.log("LocalStorage already has data.");
+    }
+}
+
+// Run immediately before anything else
+await ensureSeedData();
+
+
+// ---------------- MENU ----------------
+
+const buttons = document.querySelectorAll(".menu-button");
+const sections = document.querySelectorAll("main section");
+let currentSection = document.querySelector(".active");
 let whileAnimating = false;
 
 function switchTo(targetId) {
@@ -23,110 +59,512 @@ function switchTo(targetId) {
     whileAnimating = true;
     const nextSection = document.getElementById(targetId);
 
-    currentSection.classList.remove('active');
-    currentSection.classList.add('prev');
+    currentSection.classList.remove("active");
+    currentSection.classList.add("prev");
+    nextSection.classList.add("active");
 
-    nextSection.classList.add('active');
-
-    nextSection.addEventListener('transitionend', function handler() {
-        currentSection.classList.remove('prev');
+    nextSection.addEventListener("transitionend", function handler() {
+        currentSection.classList.remove("prev");
         currentSection = nextSection;
-        nextSection.removeEventListener('transitionend', handler);
+        nextSection.removeEventListener("transitionend", handler);
         whileAnimating = false;
-
-        const firstElement = nextSection.querySelector('*');
-        if (firstElement) firstElement.focus();
     });
 
     updateAria();
 }
 
-buttons.forEach(button => button.addEventListener('click', () => switchTo(button.dataset.target)));
-document.querySelectorAll('.back-home').forEach(b => b.addEventListener('click', () => switchTo('home')));
+buttons.forEach(btn => btn.addEventListener("click", () => switchTo(btn.dataset.target)));
+document.querySelectorAll(".back-home").forEach(b => b.addEventListener("click", () => switchTo("home")));
 
 function updateAria() {
-    sections.forEach(s => s.setAttribute('aria-hidden', !s.classList.contains('active')));
+    sections.forEach(s => s.setAttribute("aria-hidden", !s.classList.contains("active")));
 }
 
-// ------------------- CATEGORY "OTHER" -------------------
+// ---------------- CATEGORY OTHER ----------------
 
 const categorySelect = document.getElementById("category");
-const customizeCategoryInput = document.getElementById("customizeCategory");
+const customInput = document.getElementById("customizeCategory");
 
-categorySelect.addEventListener("change", () => {
-    if (categorySelect.value === "other") {
-        customizeCategoryInput.style.display = "block";
-        customizeCategoryInput.required = true;
-    } else {
-        customizeCategoryInput.style.display = "none";
-        customizeCategoryInput.required = false;
-        customizeCategoryInput.value = "";
+if (categorySelect) {
+    categorySelect.addEventListener("change", function () {
+        if (categorySelect.value === "other") {
+            customInput.style.display = "block";
+        } else {
+            customInput.style.display = "none";
+            customInput.value = "";
+        }
+    });
+}
+
+// ---------------- SETTINGS ----------------
+
+let currencies = {
+    base: "$",
+    other1: "€",
+    other2: "F"
+};
+
+let rates = {
+    "$": 1,
+    "€": 0.93,
+    "F": 600
+};
+
+let selectedCurrency = "$";
+
+// load saved settings if exist
+if (localStorage.getItem("settings")) {
+    const saved = JSON.parse(localStorage.getItem("settings"));
+    currencies = saved.currencies;
+    rates = saved.rates;
+    selectedCurrency = saved.selectedCurrency;
+}
+
+function saveSettings() {
+    const settings = {
+        currencies: currencies,
+        rates: rates,
+        selectedCurrency: selectedCurrency
+    };
+    localStorage.setItem("settings", JSON.stringify(settings));
+}
+
+// -------------- THEME -----------------
+
+const themeSelect = document.getElementById("theme");
+
+if (themeSelect) {
+    const savedTheme = localStorage.getItem("theme") || "light";
+    document.body.classList.toggle("dark-theme", savedTheme === "dark");
+    themeSelect.value = savedTheme;
+
+    themeSelect.addEventListener("change", function () {
+        const selected = themeSelect.value;
+        document.body.classList.toggle("dark-theme", selected === "dark");
+        localStorage.setItem("theme", selected);
+    });
+}
+
+// -------------- OTHER SETTINGS -----------------
+
+const baseCurrency = document.getElementById("base-currency");
+const currency1 = document.getElementById("currency1");
+const currency2 = document.getElementById("currency2");
+const rate1 = document.getElementById("rate1");
+const rate2 = document.getElementById("rate2");
+const displayCurrency = document.getElementById("display-currency");
+const resetBtn = document.getElementById("reset-data");
+
+if (baseCurrency) baseCurrency.value = currencies.base;
+if (currency1) currency1.value = currencies.other1;
+if (currency2) currency2.value = currencies.other2;
+if (displayCurrency) displayCurrency.value = selectedCurrency;
+if (rate1) rate1.value = rates[currencies.other1];
+if (rate2) rate2.value = rates[currencies.other2];
+
+if (baseCurrency) {
+    baseCurrency.addEventListener("change", function () {
+        currencies.base = baseCurrency.value;
+        rates[currencies.base] = 1;
+        saveSettings();
+        refreshDashboard();
+    });
+}
+
+if (currency1) {
+    currency1.addEventListener("change", function () {
+        currencies.other1 = currency1.value;
+        saveSettings();
+        refreshDashboard();
+    });
+}
+
+if (currency2) {
+    currency2.addEventListener("change", function () {
+        currencies.other2 = currency2.value;
+        saveSettings();
+        refreshDashboard();
+    });
+}
+
+if (rate1) {
+    rate1.addEventListener("input", function () {
+        const val = parseFloat(rate1.value);
+        if (!isNaN(val) && val > 0) {
+            rates[currencies.other1] = val;
+            saveSettings();
+            refreshDashboard();
+        }
+    });
+}
+
+if (rate2) {
+    rate2.addEventListener("input", function () {
+        const val = parseFloat(rate2.value);
+        if (!isNaN(val) && val > 0) {
+            rates[currencies.other2] = val;
+            saveSettings();
+            refreshDashboard();
+        }
+    });
+}
+
+if (displayCurrency) {
+    displayCurrency.addEventListener("change", function () {
+        selectedCurrency = displayCurrency.value;
+        saveSettings();
+        refreshDashboard();
+        applyFilters();
+    });
+}
+
+// -------------- RESET DATA -----------------
+
+if (resetBtn) {
+    resetBtn.addEventListener("click", async function () {
+        const confirmReset = confirm("Do you really want to reset all data?");
+        if (!confirmReset) return;
+
+        clearAllTransactions();
+
+        const res = await fetch("seed.json");
+        const seedData = await res.json();
+
+        // Make sure each transaction has proper numeric amount and an ID
+        const formattedSeed = seedData.map((t, i) => ({
+        id: t.id || Date.now() + i,
+        description: t.description || "",
+        amount: parseFloat(t.amount) || 0,
+        date: t.date || new Date().toISOString().split("T")[0],
+        category: t.category || "other",
+        type: t.type || "expense"
+        }));
+
+        await saveData(formattedSeed);
+
+
+        currencies = { base: "$", other1: "€", other2: "F" };
+        rates = { "$": 1, "€": 0.93, "F": 600 };
+        selectedCurrency = "$";
+        saveSettings();
+
+        alert("Data has been reset!");
+        displayTransactions(formattedSeed);
+        updateDashboard();
+        updateStats();
+        checkCapStatus();
+        // location.reload();
+    });
+}
+
+
+// ---------------- LOAD INITIAL DATA ----------------
+
+document.addEventListener("DOMContentLoaded", async function () {
+    let data = await loadData();
+
+    // If no data in localStorage, load from seed.json
+    if (!data || data.length === 0) {
+        try {
+            const res = await fetch("seed.json");
+            const seedData = await res.json();
+
+            // Make sure every seed item has proper structure
+            const formattedSeed = seedData.map((t, i) => ({
+                id: t.id || Date.now() + i,
+                description: t.description || "",
+                amount: parseFloat(t.amount) || 0,
+                date: t.date || new Date().toISOString().split("T")[0],
+                category: t.category || "other",
+                type: t.type || "expense"
+            }));
+
+            // Save formatted seed to localStorage
+            await saveData(formattedSeed);
+            data = formattedSeed;
+            console.log("Seed data loaded into localStorage");
+        } catch (err) {
+            console.error("Failed to load seed.json:", err);
+            data = [];
+        }
     }
+
+    // Always reload data from localStorage for dashboard accuracy
+    const allData = getTransactions();
+    displayTransactions(allData);
+    updateDashboard();
+    updateStats();
 });
 
-// ------------------- SETTINGS -------------------
 
-let currencies = { base: "$", other1: "€", other2: "F" };
-let rates = { "$": 1, "€": 0.93, "F": 600 };
-let selectedCurrency = currencies.base;
+// ---------------- FORM SUBMIT ----------------
 
-// ------------------- INITIALIZATION -------------------
+const form = document.getElementById("transaction-form");
+const defaultFormSubmit = form.onsubmit;
 
-document.addEventListener("DOMContentLoaded", async () => {
+if (form) {
+    form.addEventListener("submit", async function (e) {
+        e.preventDefault();
 
-    // Load seed + localStorage
-    let transactions = await loadData();
-    if (!transactions || transactions.length === 0) {
-        const res = await fetch('seed.json');
-        const seedData = await res.json();
-        await saveData(seedData);
-        transactions = seedData;
+        const selectedType = document.querySelector('input[name="type"]:checked');
+        const newData = {
+            description: document.getElementById("description").value.trim(),
+            amount: document.getElementById("amount").value.trim(),
+            date: document.getElementById("date").value,
+            category: categorySelect.value,
+            customizeCategory: customInput.value.trim(),
+            type: selectedType ? selectedType.value : ""
+        };
+
+        await saveTransaction(newData);
+        alert("Transaction saved!");
+        displayTransactions();
+        refreshDashboard();
+        updateStats();
+        form.reset();
+        customInput.style.display = "none";
+    });
+}
+
+// ---------------- DISPLAY TRANSACTIONS ----------------
+
+async function displayTransactions(filtered) {
+    const list = document.querySelector(".records-list");
+    const all = filtered || await loadData();
+
+    list.innerHTML = "";
+
+    if (all.length === 0) {
+        list.innerHTML = "<p>No transactions yet.</p>";
+        return;
     }
 
-    await displayTransactions(transactions);
-    await refreshDashboard();
-    await updateStatistics();
+    const header = document.createElement("div");
+    header.classList.add("record-item", "record-header");
+    header.innerHTML = `
+        <div class="record-date">Date</div>
+        <div class="record-description">Description</div>
+        <div class="record-category">Category</div>
+        <div class="record-amount">Amount</div>
+    `;
+    list.appendChild(header);
 
-    // Currency selection
-    const displayCurrencySelect = document.getElementById("display-currency");
-    if (displayCurrencySelect) {
-        displayCurrencySelect.value = selectedCurrency;
-        displayCurrencySelect.addEventListener("change", async () => {
-            selectedCurrency = displayCurrencySelect.value;
-            await refreshDashboard();
-            await applyFilters();
-        });
+    all.forEach(t => {
+        const div = document.createElement("div");
+        div.classList.add("record-item");
+
+        const converted = (parseFloat(t.amount) / rates[currencies.base]) * rates[selectedCurrency];
+        const symbol = selectedCurrency;
+        const sign = t.type === "income" ? "+" : "-";
+
+        div.innerHTML = `
+            <div class="record-date">${t.date}</div>
+            <div class="record-description">${t.description}</div>
+            <div class="record-category">${t.category}</div>
+            <div class="record-amount ${t.type}">${sign}${symbol}${converted.toFixed(2)}</div>
+        `;
+        list.appendChild(div);
+
+        // Add Edit button
+        const editBtn = document.createElement("button");
+        editBtn.textContent = "Edit";
+        editBtn.classList.add("edit-btn");
+        editBtn.addEventListener("click", () => openEditForm(t.id));
+        div.appendChild(editBtn);
+    });
+
+}
+async function openEditForm(id) {
+    const transactions = await loadData();
+    const transaction = transactions.find(t => t.id === id);
+    if (!transaction) return;
+
+    // Prefill the form
+    document.getElementById("description").value = transaction.description;
+    document.getElementById("amount").value = transaction.amount;
+    document.getElementById("date").value = transaction.date;
+    document.getElementById("category").value = transaction.category;
+
+    if (transaction.category === "other") {
+        document.getElementById("customizeCategory").style.display = "block";
+        document.getElementById("customizeCategory").value = transaction.customizeCategory;
+    } else {
+        document.getElementById("customizeCategory").style.display = "none";
+        document.getElementById("customizeCategory").value = "";
     }
 
-    // Theme toggle
-    const themeSelect = document.getElementById("theme");
-    if (themeSelect) {
-        const savedTheme = localStorage.getItem("theme") || "light";
-        document.body.classList.toggle("dark-theme", savedTheme === "dark");
-        themeSelect.value = savedTheme;
-        themeSelect.addEventListener("change", () => {
-            const sel = themeSelect.value;
-            document.body.classList.toggle("dark-theme", sel === "dark");
-            localStorage.setItem("theme", sel);
-        });
+    const typeRadio = document.querySelector(`input[name="type"][value="${transaction.type}"]`);
+    if (typeRadio) typeRadio.checked = true;
+
+    // Change form submit behavior
+    form.onsubmit = async function (e) {
+        e.preventDefault();
+
+        const selectedType = document.querySelector('input[name="type"]:checked');
+        const updated = {
+            id: transaction.id,
+            description: document.getElementById("description").value.trim(),
+            amount: document.getElementById("amount").value.trim(),
+            date: document.getElementById("date").value,
+            category: document.getElementById("category").value,
+            customizeCategory: document.getElementById("customizeCategory").value.trim(),
+            type: selectedType ? selectedType.value : ""
+        };
+
+        await updateTransaction(updated);
+
+        alert("Transaction updated!");
+        form.reset();
+        document.getElementById("customizeCategory").style.display = "none";
+
+        // Restore default submit behavior
+        form.onsubmit = defaultFormSubmit;
+
+        // Refresh UI
+        displayTransactions();
+        refreshDashboard();
+        updateStats();
+    };
+}
+
+// ---------------- FILTERS ----------------
+
+async function applyFilters() {
+    let all = await loadData();
+
+    const search = document.getElementById("searchInput")?.value.toLowerCase() || "";
+    const sortDate = document.getElementById("sortByDate")?.value || "newest";
+    const sortCat = document.getElementById("sortByCategory")?.value || "all";
+    const sortType = document.getElementById("sortByType")?.value || "all";
+
+    if (search) {
+        all = all.filter(t =>
+            t.description.toLowerCase().includes(search) ||
+            t.category.toLowerCase().includes(search)
+        );
     }
 
-    // Reset data
-    const resetBtn = document.getElementById("reset-data");
-    if (resetBtn) {
-        resetBtn.addEventListener("click", async () => {
-            if (!confirm("Reset all transactions?")) return;
-            clearAllTransactions();
-            const res = await fetch('seed.json');
-            const seedData = await res.json();
-            await saveData(seedData);
-            alert("Transactions reset!");
-            location.reload();
-        });
+    if (sortCat !== "all") {
+        all = all.filter(t => t.category.toLowerCase() === sortCat);
     }
 
-    // Filters
-    ["searchInput", "sortByDate", "sortByCategory", "sortByType"].forEach(id => {
+    if (sortType !== "all") {
+        all = all.filter(t => t.type === sortType);
+    }
+
+    all.sort((a, b) =>
+        sortDate === "newest" ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date)
+    );
+
+    displayTransactions(all);
+}
+
+// ---------------- DASHBOARD ----------------
+
+async function updateDashboard() {
+    const data = await loadData();
+
+    let income = 0;
+    let expense = 0;
+
+    data.forEach(t => {
+        const amount = parseFloat(t.amount);
+        if (t.type === "income") income += amount;
+        if (t.type === "expense") expense += amount;
+    });
+
+    const balance = income - expense;
+    const savings = income > 0 ? ((balance / income) * 100).toFixed(1) : 0;
+
+    const symbol = selectedCurrency;
+    const rateBase = rates[currencies.base];
+    const rateSelected = rates[selectedCurrency];
+
+    document.getElementById("income-amount").textContent = symbol + ((income / rateBase) * rateSelected).toFixed(2);
+    document.getElementById("expense-amount").textContent = symbol + ((expense / rateBase) * rateSelected).toFixed(2);
+    document.getElementById("balance-amount").textContent = symbol + ((balance / rateBase) * rateSelected).toFixed(2);
+    document.querySelector(".savings-amount").textContent = savings + "%";
+}
+
+// ---------------- CAP ----------------
+
+let spendingCap = 0;
+const setCapBtn = document.getElementById("set-cap");
+
+if (setCapBtn) {
+    setCapBtn.addEventListener("click", async function () {
+        spendingCap = parseFloat(document.getElementById("cap-input").value);
+        if (isNaN(spendingCap) || spendingCap <= 0) {
+            alert("Please enter a valid cap.");
+            return;
+        }
+        checkCapStatus();
+    });
+}
+
+async function checkCapStatus() {
+    const data = await loadData();
+    const totalExpenses = data.filter(t => t.type === "expense")
+        .reduce((sum, t) => sum + parseFloat(t.amount), 0);
+
+    const capStatus = document.getElementById("cap-status");
+    if (!capStatus) return;
+
+    if (totalExpenses > spendingCap) {
+        capStatus.textContent = "You exceeded your cap by $" + (totalExpenses - spendingCap).toFixed(2);
+        capStatus.className = "over";
+    } else {
+        capStatus.textContent = "Remaining $" + (spendingCap - totalExpenses).toFixed(2);
+        capStatus.className = "ok";
+    }
+}
+
+// ---------------- STATS ----------------
+
+async function updateStats() {
+    const data = await loadData();
+    document.getElementById("total-records").textContent = data.length;
+
+    const categories = {};
+    data.forEach(t => {
+        categories[t.category] = (categories[t.category] || 0) + 1;
+    });
+
+    const top = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
+    document.getElementById("top-category").textContent = top ? top[0] : "N/A";
+
+    const trend = document.getElementById("trend-chart");
+    trend.innerHTML = "";
+
+    const today = new Date();
+    const last7 = Array(7).fill(0);
+
+    data.forEach(t => {
+        const diff = Math.floor((today - new Date(t.date)) / (1000 * 60 * 60 * 24));
+        if (diff >= 0 && diff < 7) last7[6 - diff]++;
+    });
+
+    last7.forEach(v => {
+        const bar = document.createElement("div");
+        bar.classList.add("trend-bar");
+        bar.style.height = (v * 20) + "px";
+        trend.appendChild(bar);
+    });
+}
+
+// ---------------- REFRESH ----------------
+
+function refreshDashboard() {
+    updateDashboard();
+    checkCapStatus();
+    applyFilters();
+}
+
+// ---------------- FILTER LISTENERS ----------------
+
+document.addEventListener("DOMContentLoaded", function () {
+    const filterIds = ["searchInput", "sortByDate", "sortByCategory", "sortByType"];
+    filterIds.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
             el.addEventListener("input", applyFilters);
@@ -135,172 +573,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 });
 
-// ------------------- FORM -------------------
+// ---------------- EXPORT CSV ----------------
+const exportBtn = document.getElementById("exportCSV");
 
-const form = document.getElementById("transaction-form");
-form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const selectedType = document.querySelector('input[name="type"]:checked');
-    const formData = {
-        description: document.getElementById("description").value.trim(),
-        amount: document.getElementById("amount").value.trim(),
-        date: document.getElementById("date").value,
-        category: categorySelect.value,
-        customizeCategory: customizeCategoryInput.value.trim(),
-        type: selectedType ? selectedType.value : ""
-    };
-    if (!validateForm(formData)) return;
-    await saveTransaction(formData);
-    alert("Transaction saved!");
-    await displayTransactions();
-    await refreshDashboard();
-    await updateStatistics();
-    form.reset();
-    customizeCategoryInput.style.display = "none";
-});
-
-// ------------------- DISPLAY -------------------
-
-async function displayTransactions(filteredList) {
-    const listContainer = document.querySelector(".records-list");
-    const transactions = filteredList || await loadData();
-    listContainer.innerHTML = "";
-    if (!transactions.length) return listContainer.innerHTML = "<p>No transactions found.</p>";
-
-    const headerDiv = document.createElement("div");
-    headerDiv.classList.add("record-item", "record-header");
-    headerDiv.innerHTML = `
-        <div class="record-date">Date</div>
-        <div class="record-description">Description</div>
-        <div class="record-category">Category</div>
-        <div class="record-amount">Amount</div>
-    `;
-    listContainer.appendChild(headerDiv);
-
-    transactions.forEach(t => {
-        const div = document.createElement("div");
-        div.classList.add("record-item");
-        const amountClass = t.type === "income" ? "income" : "expense";
-        const baseAmount = parseFloat(t.amount);
-        const convertedAmount = (baseAmount / rates[currencies.base]) * rates[selectedCurrency];
-        const formattedAmount = (t.type === "income" ? "+" : "-") + selectedCurrency + convertedAmount.toFixed(2);
-        div.innerHTML = `
-            <div class="record-date">${t.date}</div>
-            <div class="record-description">${t.description}</div>
-            <div class="record-category">${t.category}</div>
-            <div class="record-amount ${amountClass}">${formattedAmount}</div>
-        `;
-        listContainer.appendChild(div);
-    });
-}
-
-// ------------------- FILTERS -------------------
-
-async function applyFilters() {
-    let filtered = await loadData();
-    const searchValue = document.getElementById("searchInput")?.value.toLowerCase() || "";
-    const sortByDate = document.getElementById("sortByDate")?.value || "newest";
-    const sortByCategory = document.getElementById("sortByCategory")?.value || "all";
-    const sortByType = document.getElementById("sortByType")?.value || "all";
-
-    if (searchValue) filtered = filtered.filter(t => t.description.toLowerCase().includes(searchValue) || t.category.toLowerCase().includes(searchValue));
-    if (sortByCategory !== "all") filtered = filtered.filter(t => t.category.toLowerCase() === sortByCategory);
-    if (sortByType !== "all") filtered = filtered.filter(t => t.type === sortByType);
-
-    filtered.sort((a,b) => sortByDate === "newest" ? new Date(b.date) - new Date(a.date) : new Date(a.date) - new Date(b.date));
-    await displayTransactions(filtered);
-}
-
-// ------------------- DASHBOARD -------------------
-
-async function updateDashboard() {
-    const transactions = await loadData();
-    let totalIncome = 0, totalExpenses = 0;
-    transactions.forEach(t => {
-        const amount = parseFloat(t.amount);
-        if (!isNaN(amount)) {
-            if (t.type === "income") totalIncome += amount;
-            if (t.type === "expense") totalExpenses += amount;
+if (exportBtn) {
+    exportBtn.addEventListener("click", async function () {
+        const data = await loadData();
+        if (!data || data.length === 0) {
+            alert("No transactions to export!");
+            return;
         }
-    });
-    const totalBalance = totalIncome - totalExpenses;
-    const savings = totalIncome > 0 ? (totalBalance / totalIncome) * 100 : 0;
-    const baseRate = rates[currencies.base] || 1;
-    const selectedRate = rates[selectedCurrency] || 1;
-    document.getElementById("income-amount").textContent = selectedCurrency + ((totalIncome / baseRate) * selectedRate).toFixed(2);
-    document.getElementById("expense-amount").textContent = selectedCurrency + ((totalExpenses / baseRate) * selectedRate).toFixed(2);
-    document.getElementById("balance-amount").textContent = selectedCurrency + ((totalBalance / baseRate) * selectedRate).toFixed(2);
-    document.querySelector(".savings-amount").textContent = savings.toFixed(1) + "%";
-}
 
-// ------------------- CAP -------------------
+        const headers = ["ID", "Description", "Amount", "Category", "Type", "Date", "CreatedAt", "UpdatedAt"];
+        const rows = data.map(t => [
+            t.id || "",
+            t.description || "",
+            t.amount || "",
+            t.category || t.customizeCategory || "",
+            t.type || "",
+            t.date || "",
+            t.createdAt || "",
+            t.updatedAt || ""
+        ]);
 
-let spendingCap = 0;
-document.getElementById("set-cap")?.addEventListener("click", async () => {
-    spendingCap = parseFloat(document.getElementById("cap-input")?.value);
-    if (isNaN(spendingCap) || spendingCap <= 0) return alert("Enter valid cap.");
-    await checkCapStatus();
-});
+        const csvContent = [headers, ...rows].map(e => e.join(",")).join("\n");
 
-async function checkCapStatus() {
-    const transactions = await loadData();
-    let totalExpenses = 0;
-    transactions.forEach(t => { if (t.type === "expense") totalExpenses += parseFloat(t.amount); });
-
-    const convertedTotalExpenses = (totalExpenses / rates[currencies.base]) * rates[selectedCurrency];
-    const convertedCap = (spendingCap / rates[currencies.base]) * rates[selectedCurrency];
-
-    const capStatus = document.getElementById("cap-status");
-    if (!capStatus) return;
-
-    if (convertedTotalExpenses > convertedCap) {
-        capStatus.textContent = "Exceeded by " + (convertedTotalExpenses - convertedCap).toFixed(2);
-        capStatus.className = "over";
-    } else {
-        capStatus.textContent = "Remaining " + (convertedCap - convertedTotalExpenses).toFixed(2);
-        capStatus.className = "ok";
-    }
-}
-
-// ------------------- REFRESH -------------------
-
-async function refreshDashboard() {
-    await updateDashboard();
-    await checkCapStatus();
-    await applyFilters();
-}
-
-// ------------------- STATISTICS -------------------
-
-async function updateStatistics() {
-    const transactions = await loadData();
-    document.getElementById("total-records").textContent = transactions.length;
-
-    const topCategoryEl = document.getElementById("top-category");
-    if (transactions.length === 0) {
-        topCategoryEl.textContent = "N/A";
-    } else {
-        const categoryCount = {};
-        transactions.forEach(t => categoryCount[t.category.toLowerCase()] = (categoryCount[t.category.toLowerCase()] || 0) + 1);
-        const topCategory = Object.keys(categoryCount).reduce((a, b) => categoryCount[a] > categoryCount[b] ? a : b);
-        topCategoryEl.textContent = topCategory;
-    }
-
-    const trendContainer = document.getElementById("trend-chart");
-    if (!trendContainer) return;
-    const today = new Date();
-    const last7 = Array(7).fill(0);
-
-    transactions.forEach(t => {
-        const diffDays = Math.floor((today - new Date(t.date)) / (1000*60*60*24));
-        if (diffDays >=0 && diffDays < 7) last7[6 - diffDays]++;
-    });
-
-    trendContainer.innerHTML = "";
-    last7.forEach(val => {
-        const bar = document.createElement("div");
-        bar.classList.add("trend-bar");
-        bar.style.height = `${val*20}px`;
-        trendContainer.appendChild(bar);
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "transactions.csv";
+        a.click();
+        URL.revokeObjectURL(url);
     });
 }
+

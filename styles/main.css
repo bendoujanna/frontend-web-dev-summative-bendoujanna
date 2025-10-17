@@ -749,6 +749,7 @@ body.dark-theme .settings-section {
   background-color: #2d2d2d;
 }
 
+
 body.dark-theme select,
 body.dark-theme input {
   background-color: #444;
@@ -773,11 +774,15 @@ body.dark-theme input {
 .about h3 {
     font-size: 1.8rem;
     margin-bottom: 1rem;
-    color: rgb(79, 11, 142); /* une couleur attractive pour le titre */
+    color: rgb(79, 11, 142); 
 }
 
 .about p {
     font-size: 1rem;
     line-height: 1.6;
     margin-bottom: 1rem;
+}
+
+.about a {
+    color:rgba(60, 60, 219, 0.848)
 }

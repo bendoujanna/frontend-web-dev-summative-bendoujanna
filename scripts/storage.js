@@ -44,11 +44,17 @@ export function getTransactions() {
     }
 }
 
+
 // Add new transaction
 export function saveTransaction(transaction) {
     if (!transaction) return null;
     const transactions = getTransactions();
+
+    const now = new Date().toISOString(); 
     transaction.id = Date.now();
+    transaction.createdAt = now; 
+    transaction.updatedAt = now;
+
     transactions.push(transaction);
     saveData(transactions);
     return transaction;
@@ -60,10 +66,16 @@ export function updateTransaction(updated) {
     const transactions = getTransactions();
     const index = transactions.findIndex(t => t.id === updated.id);
     if (index === -1) return null;
+
+    // Preserve createdAt, update updatedAt
+    updated.createdAt = transactions[index].createdAt;
+    updated.updatedAt = new Date().toISOString();
+
     transactions[index] = updated;
     saveData(transactions);
     return updated;
 }
+
 
 // Delete transaction
 export function deleteTransaction(id) {
